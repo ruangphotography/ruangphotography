@@ -1400,10 +1400,12 @@
         async function setupHero(rootFolderId, rootData) {
             try {
                 let pool = rootData.photos.filter(isImageLike);
-                // Foto hanya ada di sub-folder: pakai sub-folder pertama (hasilnya ikut di-cache)
-                if (!pool.length && rootData.folders.length) {
-                    const sub = await getFolderListing(rootData.folders[0].id);
-                    pool = sub.data.photos.filter(isImageLike);
+                // Foto hanya ada di sub-folder (mis. Cam 1 / 01): turun ke sub-folder pertama, maksimal 3 tingkat (hasilnya ikut di-cache)
+                let level = rootData;
+                for (let depth = 0; !pool.length && level.folders.length && depth < 3; depth++) {
+                    const sub = await getFolderListing(level.folders[0].id);
+                    level = sub.data;
+                    pool = level.photos.filter(isImageLike);
                 }
                 if (!pool.length) return;
 
@@ -1424,6 +1426,28 @@
                     wm.classList.remove('hidden');
                 }
             } catch (e) { /* hero hanya pemanis: kalau gagal, latar gradasi tetap tampil */ }
+        }
+
+        // Jumlah total foto termasuk semua sub-folder (maks 4 tingkat). Hasil daftar folder ikut tersimpan di cache,
+        // jadi saat klien membuka folder nanti tidak perlu memuat ulang.
+        let heroCountRun = 0;
+        async function countAllPhotos(rootId, rootData) {
+            const run = ++heroCountRun;
+            let total = rootData.photos.length;
+            let queue = rootData.folders.map(f => ({ id: f.id, depth: 1 }));
+            try {
+                while (queue.length) {
+                    const batch = queue.splice(0, 4);
+                    const results = await Promise.all(batch.map(f => getFolderListing(f.id).then(r => ({ f, d: r.data })).catch(() => null)));
+                    if (run !== heroCountRun) return;
+                    results.forEach(r => {
+                        if (!r) return;
+                        total += r.d.photos.length;
+                        if (r.f.depth < 4) r.d.folders.forEach(sf => queue.push({ id: sf.id, depth: r.f.depth + 1 }));
+                    });
+                    updateHeroCount(total);
+                }
+            } catch (e) { /* jumlah hanya informasi: jika gagal, angka terakhir tetap tampil */ }
         }
 
         function updateHeroCount(n) {
@@ -2075,6 +2099,7 @@
 
                     if (isRoot) {
                         updateHeroCount(data.photos.length);
+                        if (data.folders.length) countAllPhotos(targetFolderId, data);   // foto di sub-folder (Cam 1/01, dst.) ikut dihitung
                         if (!appState.heroReady) { appState.heroReady = true; setupHero(targetFolderId, data); }
                     }
 
