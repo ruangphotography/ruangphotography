@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Pengaturan Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="cp-page" content="admin">
+    <link rel="stylesheet" href="theme.css">
+    <script src="theme.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+    </style>
+    <script src="pengaturan.js"></script>
+    <script src="adminAuth.js"></script>
+    <script src="tour.js"></script>
+</head>
+<body class="text-slate-800 flex flex-col items-center min-h-screen p-4 py-10 gap-6">
+
+    <div class="bg-white max-w-xl w-full rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="app-head px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="hdr-icon w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-lg">Pengaturan Studio</h1>
+                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Diatur sekali, tersimpan di Google Sheet</p>
+                </div>
+            </div>
+            <div class="shrink-0 flex gap-2">
+                <a href="generatorLink.html" class="hbtn hbtn-pri"><i class="fa-solid fa-link mr-1"></i> Buat Link</a>
+                <button id="btnTour" onclick="startTour(true)" class="hbtn" title="Ulangi tur panduan"><i class="fa-solid fa-circle-question mr-1"></i> Tur</button>
+                <button id="btnLogout" onclick="Admin.logout()" class="hbtn"><i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar</button>
+            </div>
+        </div>
+
+        <div id="form" class="p-6 md:p-8 space-y-5">
+
+            <!-- Server -->
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-3">
+                <label class="block text-xs font-bold text-emerald-800"><i class="fa-solid fa-cloud mr-1"></i> Server (Google Sheet)</label>
+                <input type="text" id="serverUrlView" readonly class="w-full px-3 py-2.5 bg-white border border-emerald-300 rounded-lg text-xs font-mono text-slate-600">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="testConnection()" id="btnTest" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-plug"></i> Tes Koneksi</button>
+                    <button onclick="downloadConfig()" class="px-4 py-2 bg-white border border-emerald-300 hover:border-emerald-600 text-emerald-800 text-xs font-bold rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-download"></i> Unduh pengaturan.js</button>
+                </div>
+                <p id="connStatus" class="text-[11px] text-emerald-700 leading-relaxed"></p>
+                <p id="cfgHint" class="text-[11px] text-slate-600 leading-relaxed bg-white/70 border border-emerald-200 rounded-lg p-2.5"></p>
+            </div>
+
+            <!-- Identitas -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Studio</label>
+                <input type="text" id="setNamaVendor" placeholder="Cth: Memory Kita Photo" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                <p class="text-[11px] text-slate-500 mt-1">Tampil di header, watermark, dan pesan ke klien.</p>
+            </div>
+
+<!-- Tema tampilan -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5"><i class="fa-solid fa-palette mr-1 text-slate-400"></i> Tema Tampilan</label>
+                <div id="themePicker" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <button type="button" class="tema-card" data-tema="bersih" onclick="pickTheme('bersih')">
+                        <div style="height:64px;border-radius:10px;background:#f4f6fb;border:1px solid #e2e8f0;padding:8px;display:flex;flex-direction:column;gap:5px">
+                            <div style="height:9px;width:55%;border-radius:4px;background:#0f172a;opacity:.85"></div>
+                            <div style="display:flex;gap:5px;flex:1"><div style="flex:1;border-radius:6px;background:#ffffff;border:1px solid #e2e8f0"></div><div style="width:28%;border-radius:6px;background:#2563eb"></div></div>
+                        </div>
+                        <p class="text-xs font-bold mt-2" style="color:var(--text)">Clean Pro</p>
+                        <p class="text-[10px] leading-snug" style="color:var(--muted)">Terang, bersih, biru. Bawaan.</p>
+                    </button>
+                    <button type="button" class="tema-card" data-tema="gelap" onclick="pickTheme('gelap')">
+                        <div style="height:64px;border-radius:10px;background:#0b0d12;border:1px solid #262c3a;padding:8px;display:flex;flex-direction:column;gap:5px">
+                            <div style="height:9px;width:55%;border-radius:4px;background:#f1f5f9;opacity:.85"></div>
+                            <div style="display:flex;gap:5px;flex:1"><div style="flex:1;border-radius:6px;background:#14171f;border:1px solid #262c3a"></div><div style="width:28%;border-radius:6px;background:#e0b25c"></div></div>
+                        </div>
+                        <p class="text-xs font-bold mt-2" style="color:var(--text)">Dark Studio</p>
+                        <p class="text-[10px] leading-snug" style="color:var(--muted)">Gelap premium, aksen emas.</p>
+                    </button>
+                    <button type="button" class="tema-card" data-tema="elegan" onclick="pickTheme('elegan')">
+                        <div style="height:64px;border-radius:10px;background:#f7f3ee;border:1px solid #e6ddd2;padding:8px;display:flex;flex-direction:column;gap:5px">
+                            <div style="height:9px;width:55%;border-radius:4px;background:#2b2622;opacity:.85"></div>
+                            <div style="display:flex;gap:5px;flex:1"><div style="flex:1;border-radius:6px;background:#fffdf9;border:1px solid #e6ddd2"></div><div style="width:28%;border-radius:6px;background:#5f7a61"></div></div>
+                        </div>
+                        <p class="text-xs font-bold mt-2" style="color:var(--text)">Soft Elegant</p>
+                        <p class="text-[10px] leading-snug" style="color:var(--muted)">Ivory hangat, huruf serif.</p>
+                    </button>
+                    <button type="button" class="tema-card" data-tema="mono" onclick="pickTheme('mono')">
+                        <div style="height:64px;border-radius:10px;background:#f3f3f1;border:1px solid #dadad7;padding:8px;display:flex;flex-direction:column;gap:5px">
+                            <div style="height:9px;width:55%;border-radius:4px;background:#0a0a0a"></div>
+                            <div style="display:flex;gap:5px;flex:1"><div style="flex:1;border-radius:6px;background:#fff;border:1px solid #dadad7"></div><div style="width:28%;border-radius:6px;background:#111"></div></div>
+                        </div>
+                        <p class="text-xs font-bold mt-2" style="color:var(--text)">Classic Mono</p>
+                        <p class="text-[10px] leading-snug" style="color:var(--muted)">Hitam putih, tegas dan elegan.</p>
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1.5">Berlaku untuk halaman login, admin, dan halaman klien. Pratinjau langsung di halaman ini; tekan <b>Simpan ke Server</b> untuk menerapkannya ke semua.</p>
+            </div>
+
+            <!-- Logo -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Logo Studio</label>
+                <div class="flex items-start gap-4">
+                    <div id="logoPreviewBox" class="w-32 h-20 shrink-0 rounded-xl border border-dashed border-slate-300 bg-white flex items-center justify-center overflow-hidden">
+                        <img id="logoPreview" alt="" class="hidden max-w-full max-h-full object-contain">
+                        <span id="logoEmpty" class="text-[11px] text-slate-400 text-center px-2">Belum ada logo</span>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-2">
+                        <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="handleLogoInput(this)">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="document.getElementById('logoFile').click()" class="px-3 py-2 bg-white border border-slate-300 hover:border-blue-600 hover:text-blue-600 text-slate-700 text-xs font-bold rounded-lg transition"><i class="fa-solid fa-image mr-1"></i> Pilih Logo</button>
+                            <button type="button" id="btnLogoRemove" onclick="removeLogo()" class="hidden px-3 py-2 bg-white border border-slate-300 hover:border-red-500 hover:text-red-600 text-slate-700 text-xs font-bold rounded-lg transition"><i class="fa-solid fa-trash mr-1"></i> Hapus</button>
+                        </div>
+                        <label class="flex items-start gap-2 text-[11px] text-slate-600 cursor-pointer leading-relaxed">
+                            <input type="checkbox" id="logoWmWhite" onchange="renderWmDemo()" class="w-4 h-4 mt-0.5 rounded border-slate-300">
+                            <span>Ubah logo menjadi <b>putih</b> pada watermark foto (cocok untuk logo transparan, supaya terbaca di atas foto).</span>
+                        </label>
+                        <p id="logoInfo" class="text-[11px] text-slate-500 leading-relaxed">PNG/JPG/WebP. Logo transparan (PNG) paling bagus. Ukuran dikecilkan otomatis. Tampil di header, halaman sambutan, dan menjadi watermark foto.</p>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">Pratinjau watermark di atas foto:</p>
+                <div id="wmDemo" class="mt-1 h-24 rounded-xl overflow-hidden relative bg-gradient-to-br from-slate-500 via-slate-700 to-slate-900">
+                    <div id="wmDemoLayer" class="absolute inset-0"></div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">No. WhatsApp Admin</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-brands fa-whatsapp text-slate-400"></i></div>
+                    <input type="text" id="setWaAdmin" inputmode="tel" placeholder="Cth: 08123456789 atau 628123456789" class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Nomor yang menerima list foto pilihan klien. Awalan 0 otomatis menjadi 62.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Google Drive API Key</label>
+                <input type="text" id="setApiKey" autocomplete="off" spellcheck="false" placeholder="AIzaSy..." class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm font-mono">
+                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Dipakai portal klien untuk memuat foto dari Drive. Buat di Google Cloud Console (aktifkan Drive API). Disarankan dibatasi ke domain portal Anda (HTTP referrer).</p>
+            </div>
+
+            <!-- Template -->
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Format Pesan WhatsApp ke Klien</label>
+                <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                    Kode yang bisa dipakai:
+                    <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[NAMA]</span> nama klien,
+                    <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[LINK]</span> tautan galeri,
+                    <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[BATAS]</span> batas waktu memilih (baris yang memuatnya otomatis hilang jika link tanpa batas).
+                </p>
+                <textarea id="waTemplate" oninput="updatePreview()" rows="8" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-sm text-slate-700 focus:border-blue-600 outline-none transition resize-none shadow-inner"></textarea>
+                <div class="flex justify-end mt-1">
+                    <button onclick="resetTemplate()" class="text-[10px] font-bold text-slate-400 hover:text-blue-600 transition uppercase tracking-wider"><i class="fa-solid fa-rotate-left"></i> Reset ke Standar</button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold text-slate-700 mb-1.5">Pratinjau pesan</p>
+                <div id="preview" class="whitespace-pre-wrap text-sm text-slate-700 bg-green-50 border border-green-200 rounded-xl p-4 leading-relaxed"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="saveSettings()" id="btnSave" class="py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition flex justify-center items-center gap-2 shadow-lg"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Server</button>
+                <button onclick="loadSettings(false)" class="py-3.5 bg-white border border-slate-300 hover:border-blue-600 hover:text-blue-600 text-slate-700 text-sm font-bold rounded-xl transition flex justify-center items-center gap-2"><i class="fa-solid fa-cloud-arrow-down"></i> Muat dari Server</button>
+            </div>
+            <p id="saveStatus" class="text-[11px] text-slate-500 text-center min-h-[1rem]"></p>
+
+            <!-- Keamanan -->
+            <div class="border-t border-slate-200 pt-5 space-y-3">
+                <h2 class="text-sm font-bold text-slate-700"><i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> Ganti Password Admin</h2>
+                <input type="password" id="pwOld" autocomplete="current-password" placeholder="Password saat ini" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                <input type="password" id="pwNew" autocomplete="new-password" placeholder="Password baru (min. 8 karakter)" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                <input type="password" id="pwNew2" autocomplete="new-password" placeholder="Ulangi password baru" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                <button onclick="changePassword()" id="btnPw" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition flex justify-center items-center gap-2"><i class="fa-solid fa-key"></i> Ganti Password</button>
+                <p class="text-[11px] text-slate-500 leading-relaxed">Setelah diganti, perangkat lain harus login ulang. Lupa password? Jalankan fungsi <span class="font-mono">resetPassword</span> di editor Apps Script, password kembali ke ADMIN_KEY di Code.gs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Notifikasi -->
+    <div id="customAlert" class="fixed top-4 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform -translate-y-32 opacity-0">
+        <i id="alertIcon" class="fa-solid fa-circle-check text-green-400"></i>
+        <span id="alertText" class="text-sm font-bold">Tersimpan!</span>
+    </div>
+
+    <script>
+        const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nBatas waktu memilih foto: [BATAS]\nJika melewati batas waktu, sisa foto akan kami pilihkan.\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+
+        function showAlert(message, isError = false) {
+            const box = document.getElementById('customAlert');
+            document.getElementById('alertText').textContent = message;
+            document.getElementById('alertIcon').className = isError ? "fa-solid fa-triangle-exclamation text-red-400" : "fa-solid fa-circle-check text-green-400";
+            box.classList.remove('-translate-y-32', 'opacity-0');
+            clearTimeout(showAlert.t);
+            showAlert.t = setTimeout(() => box.classList.add('-translate-y-32', 'opacity-0'), 3200);
+        }
+
+        const serverUrl = () => Admin.serverUrl();
+        const serverErrorText = (code, res) => Admin.errorText(code, res);
+
+        function setConn(text, tone) {
+            const el = document.getElementById('connStatus');
+            el.textContent = text;
+            el.className = 'text-[11px] leading-relaxed ' + (tone === 'bad' ? 'text-red-600 font-semibold' : 'text-emerald-700');
+        }
+
+        async function testConnection() {
+            const btn = document.getElementById('btnTest');
+            btn.disabled = true; btn.classList.add('opacity-60');
+            setConn('Menghubungi server...', 'info');
+            try {
+                const t0 = Date.now();
+                const ping = await Admin.post({ action: 'ping' });
+                if (!ping.ok) throw new Error('respons tidak dikenal');
+                const ms = Date.now() - t0;
+                const res = await Admin.call({ action: 'getSettings' });
+                if (res.ok) setConn(`Server terhubung (${ms} ms) dan login valid.`, 'ok');
+                else setConn(`Server terhubung (${ms} ms), tetapi: ${serverErrorText(res.error, res)}`, 'bad');
+            } catch (e) {
+                setConn('Tidak dapat terhubung ke server. Periksa: (1) URL berakhiran /exec, (2) Deploy > Who has access = Anyone, (3) sudah Deploy versi terbaru. Detail: ' + (e.message || e), 'bad');
+            } finally { btn.disabled = false; btn.classList.remove('opacity-60'); }
+        }
+
+        function buildConfigJs() {
+            return '// Dibuat oleh Pengaturan Studio. Upload file ini ke hosting (menggantikan pengaturan.js).\n' +
+                '// Hanya berisi alamat server; pengaturan lain tersimpan di Google Sheet.\n' +
+                'const CONFIG_APP = {\n    urlServer: "' + serverUrl().replace(/"/g, '') + '",\n    namaVendor: "",\n    googleApiKey: "",\n    whatsappAdmin: ""\n};\n';
+        }
+
+        function downloadConfig() {
+            const blob = new Blob([buildConfigJs()], { type: 'text/javascript' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'pengaturan.js';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        }
+
+        function updateCfgHint() {
+            document.getElementById('serverUrlView').value = serverUrl();
+            const hint = document.getElementById('cfgHint');
+            if (Admin.urlFromFile()) {
+                hint.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Alamat server sudah ada di <span class="font-mono">pengaturan.js</span>, portal klien siap dipakai.';
+            } else {
+                hint.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Alamat server baru tersimpan di browser ini. Agar portal klien juga tahu alamatnya, klik <b>Unduh pengaturan.js</b> lalu upload file itu ke hosting (sekali saja, menggantikan <span class="font-mono">pengaturan.js</span> lama).';
+            }
+        }
+
+        function fmtSample() {
+            const d = new Date(); d.setDate(d.getDate() + 7); d.setHours(23, 59, 0, 0);
+            return d.toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':') + ' WIB';
+        }
+
+        function updatePreview() {
+            let tpl = document.getElementById('waTemplate').value;
+            tpl = tpl.replace(/\[NAMA\]/g, 'Kak Stefany').replace(/\[LINK\]/g, location.origin + '/?c=AB12CD34').replace(/\[BATAS\]/g, fmtSample());
+            document.getElementById('preview').textContent = tpl;
+        }
+
+        function resetTemplate() {
+            document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
+            updatePreview();
+            showAlert('Format pesan dikembalikan ke standar. Klik Simpan untuk menyimpan.');
+        }
+
+        // ===== LOGO =====
+        const LOGO_LIMIT = 130000;           // karakter data URI (server menerima maks 135.000)
+        let logoState = { data: '', changed: false };   // data: logo saat ini (data URI); changed: perlu dikirim saat simpan
+
+        function renderLogo() {
+            const img = document.getElementById('logoPreview'), empty = document.getElementById('logoEmpty');
+            const has = !!logoState.data;
+            img.classList.toggle('hidden', !has); empty.classList.toggle('hidden', has);
+            if (has) img.src = logoState.data; else img.removeAttribute('src');
+            document.getElementById('btnLogoRemove').classList.toggle('hidden', !has);
+            renderWmDemo();
+        }
+
+        function renderWmDemo() {
+            const layer = document.getElementById('wmDemoLayer');
+            if (!logoState.data) { layer.style.backgroundImage = ''; return; }
+            const white = document.getElementById('logoWmWhite').checked;
+            const im = new Image();
+            im.onload = () => {
+                const sc = Math.min(150 / im.naturalWidth, 70 / im.naturalHeight);
+                const iw = Math.round(im.naturalWidth * sc), ih = Math.round(im.naturalHeight * sc);
+                const defs = white ? "<defs><filter id='w' color-interpolation-filters='sRGB'><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/></filter></defs>" : '';
+                const svg = `<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='260' height='150'>${defs}<g transform='rotate(-28 130 75)' opacity='0.38'><image xlink:href='${logoState.data}' x='${130 - iw / 2}' y='${75 - ih / 2}' width='${iw}' height='${ih}'${white ? " filter='url(#w)'" : ''}/></g></svg>`;
+                if (renderWmDemo.url) URL.revokeObjectURL(renderWmDemo.url);
+                renderWmDemo.url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+                layer.style.backgroundImage = `url("${renderWmDemo.url}")`;
+                layer.style.backgroundRepeat = 'repeat';
+            };
+            im.src = logoState.data;
+        }
+
+        // Kecilkan logo di browser (maks 400px) dan simpan sebagai PNG/WebP; deteksi apakah ada transparansi
+        function processLogoFile(file) {
+            return new Promise((resolve, reject) => {
+                if (!/^image\/(png|jpeg|webp)$/.test(file.type)) return reject(new Error('Format harus PNG, JPG, atau WebP.'));
+                if (file.size > 8 * 1024 * 1024) return reject(new Error('Ukuran file maksimal 8 MB.'));
+                const url = URL.createObjectURL(file);
+                const im = new Image();
+                im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('File gambar tidak bisa dibaca.')); };
+                im.onload = () => {
+                    URL.revokeObjectURL(url);
+                    let max = 400, out = '', hasAlpha = false;
+                    while (max >= 120) {
+                        const sc = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+                        const w = Math.max(1, Math.round(im.naturalWidth * sc)), h = Math.max(1, Math.round(im.naturalHeight * sc));
+                        const c = document.createElement('canvas'); c.width = w; c.height = h;
+                        const ctx = c.getContext('2d'); ctx.drawImage(im, 0, 0, w, h);
+                        if (max === 400) {
+                            try { const d = ctx.getImageData(0, 0, w, h).data; for (let i = 3; i < d.length; i += 4) { if (d[i] < 250) { hasAlpha = true; break; } } } catch (e) {}
+                        }
+                        out = c.toDataURL('image/png');
+                        if (out.length > LOGO_LIMIT) { const wp = c.toDataURL('image/webp', 0.88); if (/^data:image\/webp/.test(wp) && wp.length < out.length) out = wp; }
+                        if (out.length <= LOGO_LIMIT) return resolve({ data: out, hasAlpha });
+                        max = Math.round(max * 0.75);
+                    }
+                    reject(new Error('Logo terlalu rumit untuk dikecilkan. Coba gambar yang lebih sederhana.'));
+                };
+                im.src = url;
+            });
+        }
+
+        async function handleLogoFile(file) {
+            try {
+                const r = await processLogoFile(file);
+                logoState = { data: r.data, changed: true };
+                document.getElementById('logoWmWhite').checked = r.hasAlpha;   // logo transparan: saran watermark putih
+                renderLogo();
+                document.getElementById('logoInfo').textContent = 'Logo siap (' + Math.round(r.data.length * 0.75 / 1024) + ' KB). Klik Simpan ke Server untuk menerapkan.';
+            } catch (e) { showAlert(e.message || 'Logo gagal diproses.', true); }
+        }
+        function handleLogoInput(inp) { if (inp.files && inp.files[0]) handleLogoFile(inp.files[0]); inp.value = ''; }
+        function removeLogo() {
+            logoState = { data: '', changed: true };
+            renderLogo();
+            document.getElementById('logoInfo').textContent = 'Logo akan dihapus setelah Anda klik Simpan ke Server.';
+        }
+
+        async function loadSettings(silent) {
+            try {
+                const res = await Admin.call({ action: 'getSettings' });
+                if (!res.ok) { if (res.error !== 'unauthorized' && !silent) showAlert(serverErrorText(res.error, res), true); return; }
+                const st = res.settings || {};
+                if (st.namaVendor) document.getElementById('setNamaVendor').value = st.namaVendor;
+                if (st.whatsappAdmin) document.getElementById('setWaAdmin').value = st.whatsappAdmin;
+                document.getElementById('setApiKey').value = st.googleApiKey || '';
+                document.getElementById('logoWmWhite').checked = st.logoWmWhite === '1';
+                renderThemePicker(st.tema || '', true);
+                if (st.logoVersion) {
+                    try { const lg = await Admin.post({ action: 'logo' }); logoState = { data: (lg && lg.logo) || '', changed: false }; } catch (e) {}
+                } else { logoState = { data: '', changed: false }; }
+                renderLogo();
+                document.getElementById('waTemplate').value = st.waTemplate || DEFAULT_TEMPLATE;
+                updatePreview();
+                document.getElementById('saveStatus').textContent = 'Dimuat dari server.';
+                if (!silent) showAlert('Pengaturan dimuat dari server.');
+            } catch (e) {
+                setConn('Tidak dapat terhubung ke server (' + (e.message || e) + '). Klik Tes Koneksi untuk petunjuk.', 'bad');
+                if (!silent) showAlert('Server tidak dapat dihubungi.', true);
+            }
+        }
+
+        // ----- Tema tampilan -----
+        let selectedTheme = (window.Theme && Theme.get()) || 'bersih';
+        function renderThemePicker(name, persist) {
+            selectedTheme = (window.Theme && Theme.apply(name || 'bersih', !!persist)) || 'bersih';
+            document.querySelectorAll('#themePicker .tema-card').forEach(c => c.classList.toggle('active', c.dataset.tema === selectedTheme));
+        }
+        function pickTheme(name) { renderThemePicker(name, false); }
+        document.addEventListener('DOMContentLoaded', () => renderThemePicker(selectedTheme, false));
+
+        async function saveSettings() {
+            const nama = document.getElementById('setNamaVendor').value.trim();
+            const wa = document.getElementById('setWaAdmin').value.trim();
+            const key = document.getElementById('setApiKey').value.trim();
+            const tpl = document.getElementById('waTemplate').value;
+            if (!nama) return showAlert('Nama studio tidak boleh kosong.', true);
+            if (wa.replace(/[^0-9]/g, '').length < 8) return showAlert('Nomor WhatsApp admin tidak valid.', true);
+            if (!key) return showAlert('Isi Google Drive API Key agar foto klien bisa dimuat.', true);
+            if (!tpl.includes('[LINK]')) return showAlert('Format pesan harus memuat kode [LINK].', true);
+
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true; btn.classList.add('opacity-60');
+            try {
+                const res = await Admin.call({ action: 'saveSettings', settings: Object.assign({ namaVendor: nama, whatsappAdmin: wa, googleApiKey: key, waTemplate: tpl, tema: selectedTheme, logoWmWhite: document.getElementById('logoWmWhite').checked }, logoState.changed ? { logo: logoState.data } : {}) });
+                if (!res.ok) { if (res.error !== 'unauthorized') showAlert(serverErrorText(res.error, res), true); return; }
+                document.getElementById('setWaAdmin').value = res.settings.whatsappAdmin;   // sudah dinormalkan (62...)
+                logoState.changed = false;
+                document.getElementById('logoInfo').textContent = 'Logo tersimpan.';
+                const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+                document.getElementById('saveStatus').textContent = 'Tersimpan ' + time + '. Berlaku untuk semua link.';
+                try { Theme.apply(selectedTheme, true); } catch (e) {}
+                showAlert('Pengaturan disimpan. Berlaku untuk semua link.');
+            } catch (e) {
+                showAlert('Server tidak dapat dihubungi.', true);
+            } finally {
+                btn.disabled = false; btn.classList.remove('opacity-60');
+            }
+        }
+
+        async function changePassword() {
+            const cur = document.getElementById('pwOld').value, nw = document.getElementById('pwNew').value, nw2 = document.getElementById('pwNew2').value;
+            if (!cur || !nw) return showAlert('Isi password saat ini dan password baru.', true);
+            if (nw.length < 8) return showAlert('Password baru minimal 8 karakter.', true);
+            if (nw !== nw2) return showAlert('Ulangi password baru dengan sama persis.', true);
+            const btn = document.getElementById('btnPw');
+            btn.disabled = true; btn.classList.add('opacity-60');
+            try {
+                const res = await Admin.call({ action: 'changePassword', currentPassword: cur, newPassword: nw });
+                if (!res.ok) { if (res.error !== 'unauthorized') showAlert(serverErrorText(res.error, res), true); return; }
+                try { localStorage.setItem('cpAdminSession', JSON.stringify({ token: res.token, expires: res.expires })); } catch (e) {}
+                ['pwOld', 'pwNew', 'pwNew2'].forEach(id => document.getElementById(id).value = '');
+                showAlert('Password diganti. Perangkat lain perlu login ulang.');
+            } catch (e) {
+                showAlert('Server tidak dapat dihubungi.', true);
+            } finally { btn.disabled = false; btn.classList.remove('opacity-60'); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // isi awal; ditimpa data server setelah login
+            document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
+            updatePreview();
+        });
+
+        // Dipanggil setiap kali admin berhasil masuk
+        const TOUR_KEY = 'cp_tour_settings_v1';
+        function startTour(manual) {
+            if (!manual && Tour.seen(TOUR_KEY)) return;
+            Tour.start({
+                key: TOUR_KEY,
+                steps: [
+                    { title: 'Atur sekali, berlaku untuk semua klien', text: 'Halaman ini berisi identitas studio Anda. Semua tersimpan di Google Sheet, jadi cukup diisi <b>satu kali</b>. Mari kita lewati satu per satu.' },
+                    { el: '#serverUrlView', title: 'Koneksi server', text: 'Ini alamat server Google Sheet Anda. Tekan <b>Tes Koneksi</b> untuk memastikan terhubung dan versinya sudah terbaru.' },
+                    { el: '#setNamaVendor', title: 'Nama studio', text: 'Nama ini tampil di halaman klien, pesan WhatsApp, dan daftar foto pilihan.' },
+                    { el: '#themePicker', title: 'Tema tampilan', text: 'Pilih gaya tampilan: <b>Clean Pro</b> (bawaan, biru), <b>Dark Studio</b>, atau <b>Soft Elegant</b>. Berlaku untuk login, halaman admin, dan halaman klien.' },
+                    { el: '#logoPreviewBox', title: 'Logo studio (opsional)', text: 'Unggah logo Anda. Logo tampil di header dan halaman sambutan klien, serta menjadi <b>watermark</b> di atas foto. PNG transparan hasilnya paling bagus.' },
+                    { el: '#setWaAdmin', title: 'Nomor WhatsApp admin', text: 'Setelah klien selesai memilih, tombol <b>Kirim ke WhatsApp</b> akan mengirim daftar foto ke nomor ini. Format bebas, mis. 08123456789.' },
+                    { el: '#setApiKey', title: 'Google Drive API Key', text: 'Dipakai agar foto di folder Drive bisa ditampilkan ke klien. Cukup tempel sekali di sini, tidak perlu mengedit file apa pun.' },
+                    { el: '#waTemplate', title: 'Format pesan untuk klien', text: 'Atur kalimat pesan yang dikirim bersama link galeri. Kode <b>[NAMA]</b>, <b>[LINK]</b>, dan <b>[BATAS]</b> terisi otomatis.' },
+                    { el: '#btnSave', title: 'Simpan ke server', text: 'Jangan lupa tekan <b>Simpan ke Server</b>. Setelah itu buka <b>Buat Link</b> untuk membuat link galeri pertama Anda.' },
+                    { el: '#pwOld', title: 'Ganti password', text: 'Disarankan mengganti password awal dengan password pribadi (minimal 8 karakter). Semua sesi login lain akan keluar otomatis.' }
+                ]
+            });
+        }
+
+        // Dipanggil setiap kali admin berhasil masuk
+        Admin.onReady(() => { updateCfgHint(); Promise.resolve(loadSettings(true)).then(() => setTimeout(() => startTour(false), 500)); });
+    </script>
+</body>
+</html>

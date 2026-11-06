@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Auto Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="cp-page" content="admin">
+    <link rel="stylesheet" href="theme.css">
+    <script src="theme.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+    </style>
+    <script src="pengaturan.js"></script>
+    <script src="adminAuth.js"></script>
+    <script src="tour.js"></script>
+<style>
+        .live-toast { animation: liveIn .25s ease-out; transition: opacity .25s, transform .25s; }
+        .live-toast-out { opacity: 0; transform: translateX(12px); }
+        @keyframes liveIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+        .live-flash { animation: liveFlash 1.6s ease-out; }
+        @keyframes liveFlash { 0% { box-shadow: inset 0 0 0 2px rgba(37,99,235,.55), 0 0 0 0 rgba(37,99,235,.25); } 100% { box-shadow: inset 0 0 0 2px rgba(37,99,235,0), 0 0 0 0 rgba(37,99,235,0); } }
+        .live-dot { animation: livePulse 1.4s infinite; }
+        @keyframes livePulse { 50% { opacity: .35; } }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col items-center justify-center min-h-screen p-4 py-10 gap-6">
+
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+    <!-- BOX UTAMA: GENERATOR LINK -->
+    <div class="bg-white w-full rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="app-head px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="hdr-icon w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-link"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-lg">Secure Link Generator</h1>
+                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">With Quota Hashing & Protection</p>
+                </div>
+            </div>
+            <div class="shrink-0 flex gap-2">
+                <a id="lnkStudio" href="pengaturanStudio.html" class="hbtn hbtn-pri"><i class="fa-solid fa-sliders mr-1"></i> Pengaturan</a>
+                <button id="btnTour" onclick="startTour(true)" class="hbtn" title="Ulangi tur panduan"><i class="fa-solid fa-circle-question mr-1"></i> Tur</button>
+                <button id="btnLogout" onclick="Admin.logout()" class="hbtn"><i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar</button>
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8 space-y-5">
+            <div class="hidden"><input type="text" id="baseUrl"></div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Klien (Opsional)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-user-tag text-slate-400"></i>
+                            </div>
+                            <input type="text" id="clientName" placeholder="Cth: Stefany and Jansen" class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">No. WA Klien (Opsional)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-brands fa-whatsapp text-slate-400"></i>
+                            </div>
+                            <input type="number" id="clientPhone" placeholder="Cth: 08123456..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Link Google Drive Asli <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-brands fa-google-drive text-slate-400"></i>
+                        </div>
+                        <input type="text" id="driveLink" placeholder="Paste link folder di sini..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Batas Kuota Foto (Opsional)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-shield-halved text-slate-400"></i>
+                        </div>
+                        <input type="number" id="kuota" placeholder="Contoh: 100 (Kosongkan jika bebas)" class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Batas Waktu Klien Memilih Foto (Opsional)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-hourglass-half text-slate-400"></i>
+                        </div>
+                        <input type="datetime-local" id="deadline" oninput="updateDeadlineHint()" class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:border-blue-600 outline-none transition text-sm">
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button type="button" onclick="setDeadlineDays(3)" class="px-3 py-1.5 text-[11px] font-bold bg-white border border-slate-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition">3 hari</button>
+                        <button type="button" onclick="setDeadlineDays(7)" class="px-3 py-1.5 text-[11px] font-bold bg-white border border-slate-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition">7 hari</button>
+                        <button type="button" onclick="setDeadlineDays(14)" class="px-3 py-1.5 text-[11px] font-bold bg-white border border-slate-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition">14 hari</button>
+                        <button type="button" onclick="setDeadlineDays(30)" class="px-3 py-1.5 text-[11px] font-bold bg-white border border-slate-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition">30 hari</button>
+                        <button type="button" onclick="setDeadlineDays(0)" class="px-3 py-1.5 text-[11px] font-bold text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-xmark"></i> Tanpa batas</button>
+                    </div>
+                    <p id="deadlineHint" class="text-[11px] text-slate-500 mt-2 leading-relaxed">Setelah melewati batas ini, klien tidak bisa memilih lagi dan sisa foto akan dipilihkan oleh vendor. Kosongkan jika tanpa batas.</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-3">
+                <label class="block text-xs font-bold text-blue-800 border-b border-blue-200 pb-2 mb-2"><i class="fa-solid fa-lock mr-1"></i> Proteksi Hak Cipta</label>
+                <div class="flex flex-col gap-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="protCheck" checked class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500">
+                        <span class="text-sm font-medium text-slate-700">Anti-Save & Blackout (Blokir Tahan Layar & Layar Hitam saat buka Snipping Tool)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="wmCheck" checked class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500">
+                        <span class="text-sm font-medium text-slate-700">Tampilkan Watermark (Nama Vendor) di atas foto</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="tplBlock">
+                <label class="block text-sm font-bold text-slate-700 mb-1">Format Pesan WhatsApp (Auto-Save)</label>
+                <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                    Gunakan kode <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[NAMA]</span> untuk menyisipkan nama, <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[LINK]</span> untuk tautan galeri, dan <span class="font-mono bg-blue-100 text-blue-700 px-1 rounded">[BATAS]</span> untuk batas waktu memilih (baris ini otomatis hilang jika tanpa batas). Bebas diedit!
+                </p>
+                <textarea id="waTemplate" oninput="saveTemplate()" rows="8" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-sm text-slate-700 focus:border-blue-600 outline-none transition resize-none shadow-inner"></textarea>
+                <div class="flex justify-end mt-1">
+                    <button onclick="resetTemplate()" class="text-[10px] font-bold text-slate-400 hover:text-blue-600 transition uppercase tracking-wider"><i class="fa-solid fa-rotate-left"></i> Reset ke Standar</button>
+                </div>
+            </div>
+
+            <div id="tplNotice" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-600 leading-relaxed flex items-start gap-2">
+                <i class="fa-solid fa-sliders text-slate-400 mt-0.5"></i>
+                <span>Format pesan WhatsApp, nama studio, dan nomor admin diatur sekali di <a href="pengaturanStudio.html" class="font-bold text-blue-600 hover:underline">Pengaturan Studio</a> (tersimpan di server).</span>
+            </div>
+
+            <button id="btnGenerate" onclick="generateLink()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Link Terenkripsi
+            </button>
+
+            <div id="resultBox" class="hidden mt-2 bg-green-50 border border-green-200 rounded-xl p-4 transition-all">
+                <span class="text-xs font-bold text-green-700 uppercase tracking-wider mb-2 block">Link Siap Dikirim!</span>
+                <textarea id="finalUrl" readonly class="w-full bg-white border border-green-200 rounded-lg p-3 text-sm text-slate-700 outline-none resize-none h-24 font-mono font-medium shadow-inner"></textarea>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                    <button onclick="copyToClipboard()" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition flex justify-center items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-copy"></i> Salin Teks
+                    </button>
+                    <button id="btnSendWA" onclick="sendToClientWA()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition flex justify-center items-center gap-2 shadow-md">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Kirim ke Klien
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DAFTAR LINK KLIEN (mode server) -->
+    <div id="listBox" class="hidden bg-white w-full rounded-2xl shadow-xl border border-slate-200 overflow-hidden lg:sticky lg:top-6">
+        <div class="sec-head px-6 py-4 flex items-center justify-between border-b border-slate-200">
+            <div>
+                <h2 class="font-bold text-slate-800">Link Klien & Pilihan</h2>
+                <p class="text-[11px] text-slate-500">Lihat siapa yang sudah memilih, perpanjang atau tutup link.</p>
+            </div>
+            <button onclick="loadLinkList()" id="btnLoadList" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Muat Daftar
+            </button>
+        </div>
+        <div id="linkList" class="divide-y divide-slate-100 max-h-[28rem] lg:max-h-[calc(100vh-11rem)] overflow-y-auto">
+            <p class="p-6 text-sm text-slate-400 text-center">Klik "Muat Daftar" untuk menampilkan link yang pernah dibuat.</p>
+        </div>
+    </div>
+
+    </div><!-- /grid 2 kolom -->
+
+    <!-- Alert Notifikasi -->
+    <div id="customAlert" class="fixed top-4 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform -translate-y-32 opacity-0">
+        <i id="alertIcon" class="fa-solid fa-circle-check text-green-400"></i>
+        <span id="alertText" class="text-sm font-bold">Teks tersalin!</span>
+    </div>
+
+    <script>
+        const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nBatas waktu memilih foto: [BATAS]\nJika melewati batas waktu, sisa foto akan kami pilihkan.\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let currentUrl = window.location.href.split('?')[0].split('#')[0];
+            let portalUrl = currentUrl.includes("generatorLink.html") ? currentUrl.replace("generatorLink.html", "") : currentUrl.substring(0, currentUrl.lastIndexOf("/") + 1);
+            document.getElementById('baseUrl').value = portalUrl;
+
+            document.getElementById('listBox').classList.remove('hidden');
+            document.getElementById('tplBlock').classList.add('hidden');
+            document.getElementById('tplNotice').classList.remove('hidden');
+
+            const savedTemplate = localStorage.getItem('customWaTemplate');
+            document.getElementById('waTemplate').value = savedTemplate || DEFAULT_TEMPLATE;
+        });
+
+        // Dipanggil setiap kali admin berhasil masuk
+        const TOUR_WELCOME = 'cp_tour_welcome_v1', TOUR_GEN = 'cp_tour_generator_v1';
+        let settingsComplete = null;   // null = belum diketahui
+
+        function startTour(manual) {
+            if (manual) return runGenTour(true);
+            if (settingsComplete === null) return;
+            if (!settingsComplete) {
+                if (Tour.seen(TOUR_WELCOME)) return;
+                Tour.start({
+                    key: TOUR_WELCOME,
+                    labels: { done: 'Buka Pengaturan Studio', skip: 'Nanti saja' },
+                    steps: [{ title: 'Selamat datang! 👋', text: 'Sebelum membuat link untuk klien, lengkapi dulu <b>Pengaturan Studio</b>: nama studio, logo, nomor WhatsApp, dan Google Drive API Key. Cukup diisi satu kali. Kami pandu langkah demi langkah.' }],
+                    onEnd: (completed) => { if (completed) location.href = 'pengaturanStudio.html'; }
+                });
+                return;
+            }
+            runGenTour(false);
+        }
+
+        function runGenTour(manual) {
+            if (!manual && Tour.seen(TOUR_GEN)) return;
+            Tour.start({
+                key: TOUR_GEN,
+                steps: [
+                    { title: 'Membuat link untuk klien', text: 'Tiga langkah: isi data klien, tempel folder Google Drive, lalu buat link. Link yang dihasilkan singkat dan siap dikirim lewat WhatsApp.' },
+                    { el: '#clientName', title: 'Nama klien', text: 'Nama ini muncul di halaman klien dan di daftar foto pilihan. Opsional, tapi disarankan.' },
+                    { el: '#driveLink', title: 'Folder Google Drive', text: 'Tempel link folder foto klien. Pastikan folder sudah dibagikan sebagai <b>"Siapa saja yang memiliki link"</b>.' },
+                    { el: '#btnGenerate', title: 'Buat link', text: 'Tekan untuk membuat link. Anda juga bisa mengatur kuota foto, batas waktu, proteksi, dan watermark sebelumnya.' },
+                    { el: '#linkList', title: 'Link klien & pilihan', text: 'Di sini Anda memantau pilihan klien secara langsung: salin link, perpanjang waktu, atau tutup link. Tombol <b>Pakai di RAW Sorter</b> mengirim daftar foto pilihan langsung ke Auto RAW Sorter.' },
+                    { el: '#btnTour', title: 'Butuh bantuan lagi?', text: 'Tekan <b>Tur</b> kapan saja untuk mengulang panduan ini.' }
+                ]
+            });
+        }
+
+
+        function saveTemplate() {
+            const currentText = document.getElementById('waTemplate').value;
+            localStorage.setItem('customWaTemplate', currentText);
+        }
+
+        function resetTemplate() {
+            document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
+            localStorage.removeItem('customWaTemplate');
+            showAlert('Format pesan dikembalikan ke standar.');
+        }
+
+        function showAlert(message, isError = false) {
+            const alertBox = document.getElementById('customAlert');
+            const alertIcon = document.getElementById('alertIcon');
+            document.getElementById('alertText').textContent = message;
+            alertIcon.className = isError ? "fa-solid fa-triangle-exclamation text-red-400" : "fa-solid fa-circle-check text-green-400";
+            alertBox.classList.remove('-translate-y-32', 'opacity-0');
+            setTimeout(() => alertBox.classList.add('-translate-y-32', 'opacity-0'), 3000);
+        }
+
+        function extractFolderId(url) {
+            const match = url.match(/folders\/([a-zA-Z0-9-_]+)/);
+            if (match && match[1]) return match[1];
+            const matchId = url.match(/id=([a-zA-Z0-9-_]+)/);
+            return matchId && matchId[1] ? matchId[1] : url; 
+        }
+
+        // ===== BATAS WAKTU PILIH FOTO =====
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function toLocalInputValue(d) {
+            return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+        }
+
+        // Pilihan cepat: N hari dari sekarang, jam 23:59 waktu setempat. 0 = tanpa batas
+        function setDeadlineDays(days) {
+            const input = document.getElementById('deadline');
+            if (!days) { input.value = ''; updateDeadlineHint(); return; }
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            d.setHours(23, 59, 0, 0);
+            input.value = toLocalInputValue(d);
+            updateDeadlineHint();
+        }
+
+        function formatDeadline(ms) {
+            return new Date(ms).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':') + ' ' + tzLabel();
+        }
+
+        function tzLabel() {
+            const off = -new Date().getTimezoneOffset() / 60;
+            const map = { 7: 'WIB', 8: 'WITA', 9: 'WIT' };
+            return map[off] || ('UTC' + (off >= 0 ? '+' : '') + off);
+        }
+
+        function getDeadlineMs() {
+            const v = document.getElementById('deadline').value;
+            if (!v) return null;
+            const ms = new Date(v).getTime();   // nilai input dibaca sebagai waktu lokal vendor -> instan absolut
+            return isNaN(ms) ? null : ms;
+        }
+
+        function updateDeadlineHint() {
+            const hint = document.getElementById('deadlineHint');
+            const ms = getDeadlineMs();
+            if (ms === null) {
+                hint.className = 'text-[11px] text-slate-500 mt-2 leading-relaxed';
+                hint.textContent = 'Setelah melewati batas ini, klien tidak bisa memilih lagi dan sisa foto akan dipilihkan oleh vendor. Kosongkan jika tanpa batas.';
+            } else if (ms <= Date.now()) {
+                hint.className = 'text-[11px] text-red-600 font-semibold mt-2 leading-relaxed';
+                hint.textContent = 'Waktu ini sudah lewat. Link akan langsung terkunci untuk klien.';
+            } else {
+                hint.className = 'text-[11px] text-blue-700 font-semibold mt-2 leading-relaxed';
+                hint.textContent = 'Klien bisa memilih sampai ' + formatDeadline(ms) + '. Setelahnya sisa foto dipilihkan oleh vendor.';
+            }
+        }
+
+        // ===== SERVER =====
+        const escapeHtml = (v) => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const serverErrorText = (code, res) => Admin.errorText(code, res);
+
+        async function generateLink() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientPhone = document.getElementById('clientPhone').value.trim();
+            const driveLink = document.getElementById('driveLink').value.trim();
+            const kuota = document.getElementById('kuota').value.trim();
+
+            if (!driveLink) return alert('Link Google Drive wajib diisi!');
+
+            const folderId = extractFolderId(driveLink);
+            if (!folderId) return showAlert('Link Google Drive tidak valid!', true);
+
+            const deadlineMs = getDeadlineMs();
+            if (deadlineMs !== null && deadlineMs <= Date.now() && !confirm('Batas waktu yang dipilih sudah lewat, klien tidak akan bisa memilih foto sama sekali. Tetap buat link?')) return;
+
+            let finalUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+
+            const btn = document.getElementById('btnGenerate');
+            btn.disabled = true; btn.classList.add('opacity-60');
+            try {
+                const res = await Admin.call({
+                    action: 'createLink', name: clientName, folderId,
+                    kuota: kuota && parseInt(kuota) > 0 ? parseInt(kuota) : null,
+                    deadline: deadlineMs, prot: document.getElementById('protCheck').checked,
+                    wm: document.getElementById('wmCheck').checked, phone: clientPhone
+                });
+                if (!res.ok) { if (res.error !== 'unauthorized') showAlert(serverErrorText(res.error, res), true); return; }
+                finalUrl += '?c=' + res.code;
+                if (document.getElementById('linkList').dataset.loaded) loadLinkList();
+            } catch (e) {
+                return showAlert('Server tidak dapat dihubungi. Periksa internet Anda.', true);
+            } finally {
+                btn.disabled = false; btn.classList.remove('opacity-60');
+            }
+
+            document.getElementById('resultBox').classList.remove('hidden');
+            document.getElementById('finalUrl').value = finalUrl;
+
+            const btnSendWA = document.getElementById('btnSendWA');
+            if (clientPhone !== "") {
+                btnSendWA.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Kirim ke Klien';
+            } else {
+                btnSendWA.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Buka WhatsApp';
+            }
+        }
+
+        // ===== FORMAT PESAN dari Pengaturan Studio (mode server) =====
+        async function loadServerSettings(silent) {
+            try {
+                const res = await Admin.call({ action: 'getSettings' });
+                if (!res.ok) return;
+                const st = res.settings || {};
+                settingsComplete = !!(st.namaVendor && st.googleApiKey);
+                if (window.Theme) Theme.apply(st.tema || '', true);
+                if (st.waTemplate) { document.getElementById('waTemplate').value = st.waTemplate; saveTemplate(); }
+            } catch (e) { /* pakai template tersimpan di browser */ }
+        }
+
+        // ===== DAFTAR LINK (mode server) =====
+        function fmtDate(ms) {
+            if (!ms) return '-';
+            return new Date(ms).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':');
+        }
+
+        let currentLinks = [];
+        const LIST_CACHE = 'cp_list_cache';
+        async function loadLinkList(silent) {
+            const box = document.getElementById('linkList');
+            const icon = document.querySelector('#btnLoadList i');
+            icon.classList.add('fa-spin');
+            try {
+                const res = await Admin.call({ action: 'list' });
+                if (!res.ok) { if (res.error !== 'unauthorized' && !silent) showAlert(serverErrorText(res.error, res), true); return; }
+                currentLinks = res.links;
+                box.dataset.loaded = '1';
+                renderLinkList(res.now);
+                try { localStorage.setItem(LIST_CACHE, JSON.stringify({ links: res.links })); } catch (e) {}
+                liveBaseline();
+            } catch (e) {
+                showAlert('Server tidak dapat dihubungi.', true);
+            } finally { icon.classList.remove('fa-spin'); }
+        }
+
+
+        // ===== PEMANTAUAN REALTIME =====
+        // Server tidak bisa "mendorong" data (Apps Script), jadi halaman ini bertanya ke endpoint 'activity'
+        // yang sangat ringan: tiap 4 detik saat ada klien aktif, 8 detik saat sepi, berhenti saat tab disembunyikan.
+        const live = { prev: {}, sig: null, busy: false, timer: null, fails: 0, useList: false, started: false, lastChange: 0 };
+
+        function liveBaseline() {
+            live.prev = {};
+            currentLinks.forEach(l => { live.prev[l.code] = { count: l.selectedCount || 0, updatedAt: l.updatedAt || 0, online: undefined }; });
+            live.sig = null;   // diisi oleh polling pertama
+        }
+
+        function ensureToastBox() {
+            let b = document.getElementById('liveToasts');
+            if (!b) {
+                b = document.createElement('div');
+                b.id = 'liveToasts';
+                b.className = 'fixed top-4 right-4 z-[60] flex flex-col gap-2 w-72 max-w-[calc(100vw-2rem)] pointer-events-none';
+                document.body.appendChild(b);
+            }
+            return b;
+        }
+
+        function liveToast(code, title, detail, icon) {
+            const box = ensureToastBox();
+            const old = box.querySelector('[data-toast="' + code + '"]');
+            if (old) old.remove();
+            const el = document.createElement('div');
+            el.dataset.toast = code;
+            el.className = 'live-toast pointer-events-auto cursor-pointer bg-white border border-slate-200 border-l-4 border-l-blue-500 rounded-xl shadow-lg p-3 text-xs';
+            el.innerHTML = '<p class="font-bold text-slate-800"><i class="fa-solid ' + icon + ' text-blue-600 mr-1.5"></i>' + escapeHtml(title) + '</p><p class="text-slate-500 mt-0.5">' + escapeHtml(detail) + '</p>';
+            el.onclick = () => { flashCard(code, true); el.remove(); };
+            box.appendChild(el);
+            while (box.children.length > 4) box.firstChild.remove();
+            setTimeout(() => { if (el.parentNode) { el.classList.add('live-toast-out'); setTimeout(() => el.remove(), 250); } }, 6000);
+        }
+
+        function cardOf(code) { return document.querySelector('#linkList [data-code="' + code + '"]'); }
+        function flashCard(code, scroll) {
+            const c = cardOf(code);
+            if (!c) return;
+            if (scroll) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            c.classList.remove('live-flash'); void c.offsetWidth; c.classList.add('live-flash');
+        }
+
+        function liveApply(items, sig) {
+            // link baru / status / batas waktu berubah -> muat ulang daftar penuh
+            if (live.sig !== null && sig !== live.sig) { live.sig = sig; loadLinkList(true); return; }
+            live.sig = sig;
+            const now = Date.now();
+            Object.keys(items).forEach(code => {
+                const it = items[code], p = live.prev[code];
+                const l = currentLinks.find(x => x.code === code);
+                if (!l) return;
+                const name = l.name || 'Klien';
+                const changed = p && (it.count !== p.count || (it.updatedAt || 0) > (p.updatedAt || 0));
+                if (changed) {
+                    live.lastChange = now;
+                    if (it.count !== p.count) {
+                        const more = it.count > p.count;
+                        liveToast(code, name + (more ? ' sedang memilih foto' : ' mengubah pilihan'), p.count + ' → ' + it.count + ' foto' + (l.kuota ? ' (kuota ' + l.kuota + ')' : ''), 'fa-hand-pointer');
+                    }
+                    flashCard(code);
+                } else if (p && p.online === 0 && it.online > 0) {
+                    liveToast(code, name + ' membuka link', 'Klien sedang online sekarang', 'fa-eye');
+                }
+                l.selectedCount = it.count; l.updatedAt = it.updatedAt; l.online = it.online;
+                const c = cardOf(code);
+                if (c) {
+                    const pr = c.querySelector('.js-prog'); if (pr) pr.textContent = l.kuota ? it.count + ' / ' + l.kuota + ' foto' : it.count + ' foto';
+                    const up = c.querySelector('.js-upd'); if (up) up.textContent = fmtDate(it.updatedAt);
+                    const on = c.querySelector('.js-online'); if (on) on.classList.toggle('hidden', !(it.online > 0));
+                    const sb = c.querySelector('.fa-wand-magic-sparkles'); if (sb && sb.parentNode) sb.parentNode.classList.toggle('opacity-50', !it.count);
+                }
+                live.prev[code] = { count: it.count, updatedAt: it.updatedAt || 0, online: it.online === undefined ? (p ? p.online : undefined) : it.online };
+            });
+        }
+
+        async function livePoll() {
+            if (live.busy) return;
+            live.busy = true;
+            try {
+                if (document.hidden || document.getElementById('linkList').dataset.loaded !== '1') return;
+                let res = null;
+                if (!live.useList) {
+                    res = await Admin.call({ action: 'activity' });
+                    if (res && !res.ok && res.error === 'unknown_action') live.useList = true;   // Code.gs lama: pakai 'list' (lebih berat)
+                }
+                if (live.useList) {
+                    const r = await Admin.call({ action: 'list' });
+                    if (r && r.ok) {
+                        const items = {}; const parts = [];
+                        r.links.forEach(l => { items[l.code] = { count: l.selectedCount || 0, updatedAt: l.updatedAt || 0, online: undefined }; parts.push([l.code, l.name, l.kuota, l.deadline, l.closed].join('~')); });
+                        liveApply(items, parts.join('|'));
+                    }
+                } else if (res && res.ok) {
+                    liveApply(res.items || {}, res.sig);
+                }
+                live.fails = 0;
+            } catch (e) { live.fails++; }
+            finally { live.busy = false; }
+        }
+
+        function liveSchedule() {
+            clearTimeout(live.timer);
+            const anyOnline = Object.keys(live.prev).some(c => live.prev[c].online > 0);
+            const recent = Date.now() - live.lastChange < 120000;
+            let delay = (anyOnline || recent) ? 4000 : 8000;
+            if (live.useList) delay = Math.max(delay, 12000);
+            if (live.fails) delay = Math.min(30000, delay * Math.pow(2, live.fails));
+            live.timer = setTimeout(async () => { await livePoll(); liveSchedule(); }, delay);
+        }
+
+        function startLive() {
+            if (live.started) return;
+            live.started = true;
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) { livePoll(); liveSchedule(); } });
+            liveSchedule();
+        }
+
+        function renderLinkList(now) {
+            const box = document.getElementById('linkList');
+            if (!currentLinks.length) { box.innerHTML = '<p class="p-6 text-sm text-slate-400 text-center">Belum ada link.</p>'; return; }
+            box.innerHTML = currentLinks.map(l => {
+                const expired = l.deadline !== null && now > l.deadline;
+                let state, tone;
+                if (l.closed) { state = 'Ditutup'; tone = 'bg-slate-100 text-slate-600'; }
+                else if (expired) { state = 'Waktu habis'; tone = 'bg-red-100 text-red-700'; }
+                else { state = 'Aktif'; tone = 'bg-green-100 text-green-700'; }
+                const progress = l.kuota ? `${l.selectedCount} / ${l.kuota} foto` : `${l.selectedCount} foto`;
+                return `<div class="p-4 space-y-2" data-code="${l.code}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-bold text-sm text-slate-800 truncate">${escapeHtml(l.name || '(tanpa nama)')}</p>
+                            <p class="text-[11px] text-slate-500 font-mono">${escapeHtml(l.code)}</p>
+                        </div>
+                        <div class="shrink-0 flex flex-col items-end gap-1">
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-full ${tone}">${state}</span>
+                            <span class="js-online text-[10px] font-bold text-green-700 ${l.online > 0 ? '' : 'hidden'}"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1 live-dot"></span>Klien online</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+                        <p><i class="fa-solid fa-images mr-1 text-slate-400"></i><span class="js-prog">${progress}</span></p>
+                        <p><i class="fa-solid fa-hourglass-half mr-1 text-slate-400"></i>${l.deadline ? fmtDate(l.deadline) : 'Tanpa batas'}</p>
+                        <p class="col-span-2"><i class="fa-regular fa-clock mr-1 text-slate-400"></i>Terakhir memilih: <span class="js-upd">${fmtDate(l.updatedAt)}</span></p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button onclick="copyClientLink('${l.code}')" class="px-3 py-1.5 text-[11px] font-bold bg-slate-900 text-white rounded-lg hover:bg-black shadow-sm transition"><i class="fa-solid fa-copy mr-1"></i>Salin Link</button>
+                        <button onclick="sendToSorter('${l.code}')" class="px-3 py-1.5 text-[11px] font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm transition ${l.selectedCount ? '' : 'opacity-50'}" title="Kirim daftar foto pilihan klien langsung ke Auto RAW Sorter"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Pakai di RAW Sorter</button>
+                        <button onclick="extendLink('${l.code}')" class="px-3 py-1.5 text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-300 rounded-lg hover:bg-slate-200 transition"><i class="fa-solid fa-calendar-plus mr-1"></i>Perpanjang</button>
+                        <button onclick="toggleLinkClosed('${l.code}', ${l.closed ? 'false' : 'true'})" class="px-3 py-1.5 text-[11px] font-bold bg-white border ${l.closed ? 'border-blue-300 text-blue-700 hover:bg-blue-50' : 'border-rose-300 text-rose-700 hover:bg-rose-50'} rounded-lg transition"><i class="fa-solid ${l.closed ? 'fa-lock-open' : 'fa-lock'} mr-1"></i>${l.closed ? 'Buka Lagi' : 'Tutup Sekarang'}</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Ambil daftar foto pilihan klien dari server lalu buka Auto RAW Sorter dengan daftar sudah terisi
+        async function sendToSorter(code) {
+            const link = currentLinks.find(l => l.code === code) || {};
+            const tab = window.open('', '_blank');   // dibuka sekarang agar tidak diblokir popup blocker
+            try {
+                const res = await Admin.call({ action: 'get', c: code });
+                const items = (res && res.ok && res.selection && res.selection.items) || [];
+                if (!items.length) {
+                    if (tab) tab.close();
+                    return showAlert('Klien ini belum memilih foto.', true);
+                }
+                localStorage.setItem('cpSorterImport', JSON.stringify({
+                    name: link.name || '', code: code, t: Date.now(), names: items.map(i => i.name)
+                }));
+                if (tab) tab.location.href = 'admin.html'; else location.href = 'admin.html';
+            } catch (e) {
+                if (tab) tab.close();
+                showAlert('Server tidak dapat dihubungi.', true);
+            }
+        }
+
+        function clientLinkFor(code) {
+            const base = document.getElementById('baseUrl').value.trim();
+            return (base.endsWith('/') ? base : base + '/') + '?c=' + code;
+        }
+
+        function copyClientLink(code) {
+            const link = clientLinkFor(code);
+            navigator.clipboard.writeText(link).then(() => showAlert('Link klien disalin!')).catch(() => { prompt('Salin link ini:', link); });
+        }
+
+        async function updateLinkOnServer(code, fields) {
+            const res = await Admin.call(Object.assign({ action: 'updateLink', c: code }, fields));
+            if (!res.ok) { if (res.error !== 'unauthorized') showAlert(serverErrorText(res.error, res), true); return false; }
+            return true;
+        }
+
+        async function extendLink(code) {
+            const input = prompt('Perpanjang batas waktu sampai berapa hari dari sekarang? (contoh: 3)\nBatas baru jatuh pada pukul 23:59.', '3');
+            if (input === null) return;
+            const days = parseInt(input, 10);
+            if (!(days > 0)) return showAlert('Masukkan jumlah hari yang valid.', true);
+            const d = new Date(); d.setDate(d.getDate() + days); d.setHours(23, 59, 0, 0);
+            try {
+                if (await updateLinkOnServer(code, { deadline: d.getTime(), status: 'aktif' })) { showAlert('Batas waktu diperpanjang.'); loadLinkList(); }
+            } catch (e) { showAlert('Server tidak dapat dihubungi.', true); }
+        }
+
+        async function toggleLinkClosed(code, close) {
+            try {
+                if (await updateLinkOnServer(code, { status: close ? 'tutup' : 'aktif' })) { showAlert(close ? 'Link ditutup.' : 'Link dibuka kembali.'); loadLinkList(); }
+            } catch (e) { showAlert('Server tidak dapat dihubungi.', true); }
+        }
+
+        function getMessageTemplate(name, link) {
+            let template = document.getElementById('waTemplate').value;
+            let displayName = name ? `Kak ${name}` : "Kakak";
+            const deadlineMs = getDeadlineMs();
+
+            if (deadlineMs === null) {
+                // Tanpa batas: hapus baris yang memuat [BATAS] beserta kalimat lanjutan tentang batas waktu
+                template = template.split('\n').filter(line => !line.includes('[BATAS]') && !/melewati batas waktu/i.test(line)).join('\n').replace(/\n{3,}/g, '\n\n');
+            } else if (!template.includes('[BATAS]')) {
+                // Template kustom lama belum punya [BATAS]: tambahkan di akhir supaya klien tetap tahu
+                template = template.replace(/\s+$/, '') + '\n\nBatas waktu memilih foto: [BATAS]';
+            }
+
+            return template
+                .replace(/\[NAMA\]/g, displayName)
+                .replace(/\[LINK\]/g, link)
+                .replace(/\[BATAS\]/g, deadlineMs !== null ? formatDeadline(deadlineMs) : '');
+        }
+
+        function copyToClipboard() {
+            const finalUrl = document.getElementById('finalUrl').value;
+            const clientName = document.getElementById('clientName').value.trim();
+            
+            let messageToCopy = getMessageTemplate(clientName, finalUrl);
+            
+            navigator.clipboard.writeText(messageToCopy).then(() => {
+                showAlert('Teks pesan berhasil disalin!');
+            }).catch(() => {
+                const textArea = document.createElement("textarea");
+                textArea.value = messageToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showAlert('Teks pesan berhasil disalin!');
+            });
+        }
+
+        function sendToClientWA() {
+            const finalUrl = document.getElementById('finalUrl').value;
+            const clientName = document.getElementById('clientName').value.trim();
+            
+            let rawPhone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, ''); 
+            
+            let finalPhone = rawPhone;
+            if (finalPhone.startsWith('0')) {
+                finalPhone = '62' + finalPhone.substring(1);
+            }
+
+            let message = getMessageTemplate(clientName, finalUrl);
+            let waUrl = '';
+            
+            if (finalPhone) {
+                waUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
+            } else {
+                waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            }
+            
+            window.open(waUrl, '_blank');
+        }
+
+        // Dipanggil setiap kali admin berhasil masuk
+        Admin.onReady(() => {
+            // tampilkan daftar tersimpan dulu agar langsung terlihat, lalu segarkan dari server
+            try {
+                const c = JSON.parse(localStorage.getItem(LIST_CACHE) || 'null');
+                if (c && Array.isArray(c.links) && c.links.length && !document.getElementById('linkList').dataset.loaded) { currentLinks = c.links; renderLinkList(Date.now()); }
+            } catch (e) {}
+            Promise.all([Promise.resolve(loadServerSettings(true)), Promise.resolve(loadLinkList(true))]).then(() => { startLive(); setTimeout(() => startTour(false), 500); });
+        });
+    </script>
+</body>
+</html>
